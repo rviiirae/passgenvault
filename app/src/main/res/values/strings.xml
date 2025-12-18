@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">PassVault</string>
+    <string name="app_subtitle">Simple mobile password vault &amp; generator</string>
+    <string name="generator_title">Generator</string>
+    <string name="length_label">Length: %1$d</string>
+    <string name="length_default">Length: 14</string>
+    <string name="lower_case_label">lower</string>
+    <string name="upper_case_label">upper</string>
+    <string name="numbers_label">numbers</string>
+    <string name="symbols_label">symbols</string>
+    <string name="generated_password_default">XJkgjMHeDry</string>
+    <string name="generate_button">Generate</string>
+    <string name="copy_button">Copy</string>
+    <string name="vault_title">Vault</string>
+    <string name="name_hint">Name (e.g. GitHub)</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="quick_button">Quick</string>
+    <string name="save_button">Save</string>
+</resources>
