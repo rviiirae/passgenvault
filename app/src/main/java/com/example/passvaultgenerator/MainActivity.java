@@ -89,14 +89,13 @@ public class MainActivity extends AppCompatActivity {
         saveButton.setOnClickListener(v -> {
             String name = nameEditText.getText().toString();
             String username = usernameEditText.getText().toString();
-            String password = passwordEditText.getText().toString();
 
-            if (name.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            if (name.isEmpty() || username.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            VaultItem newItem = new VaultItem(name, username, password);
+            VaultItem newItem = new VaultItem(name, username);
             vaultItems.add(newItem);
             vaultItemAdapter.notifyItemInserted(vaultItems.size() - 1);
             passwordStorage.saveVaultItems(vaultItems);
