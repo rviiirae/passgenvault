@@ -19,17 +19,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView lengthTextView;
-    private SeekBar lengthSeekBar;
-    private CheckBox lowerCaseCheckBox;
-    private CheckBox upperCaseCheckBox;
-    private CheckBox numbersCheckBox;
-    private CheckBox symbolsCheckBox;
-    private TextView generatedPasswordTextView;
     private EditText nameEditText;
     private EditText usernameEditText;
     private EditText passwordEditText;
-    private RecyclerView vaultRecyclerView;
 
     private PasswordStorage passwordStorage;
     private List<VaultItem> vaultItems;
@@ -43,17 +35,17 @@ public class MainActivity extends AppCompatActivity {
         passwordStorage = new PasswordStorage(this);
         vaultItems = passwordStorage.getVaultItems();
 
-        lengthTextView = findViewById(R.id.length_text_view);
-        lengthSeekBar = findViewById(R.id.length_seek_bar);
-        lowerCaseCheckBox = findViewById(R.id.lower_case_check_box);
-        upperCaseCheckBox = findViewById(R.id.upper_case_check_box);
-        numbersCheckBox = findViewById(R.id.numbers_check_box);
-        symbolsCheckBox = findViewById(R.id.symbols_check_box);
-        generatedPasswordTextView = findViewById(R.id.generated_password_text_view);
+        TextView lengthTextView = findViewById(R.id.length_text_view);
+        SeekBar lengthSeekBar = findViewById(R.id.length_seek_bar);
+        CheckBox lowerCaseCheckBox = findViewById(R.id.lower_case_check_box);
+        CheckBox upperCaseCheckBox = findViewById(R.id.upper_case_check_box);
+        CheckBox numbersCheckBox = findViewById(R.id.numbers_check_box);
+        CheckBox symbolsCheckBox = findViewById(R.id.symbols_check_box);
+        TextView generatedPasswordTextView = findViewById(R.id.generated_password_text_view);
         nameEditText = findViewById(R.id.name_edit_text);
         usernameEditText = findViewById(R.id.username_edit_text);
         passwordEditText = findViewById(R.id.password_edit_text);
-        vaultRecyclerView = findViewById(R.id.vault_recycler_view);
+        RecyclerView vaultRecyclerView = findViewById(R.id.vault_recycler_view);
         Button generateButton = findViewById(R.id.generate_button);
         Button copyButton = findViewById(R.id.copy_button);
         Button quickButton = findViewById(R.id.quick_button);
@@ -106,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
             VaultItem newItem = new VaultItem(name, username, password);
             vaultItems.add(newItem);
-            vaultItemAdapter.notifyDataSetChanged();
+            vaultItemAdapter.notifyItemInserted(vaultItems.size() - 1);
             passwordStorage.saveVaultItems(vaultItems);
 
             nameEditText.setText("");
