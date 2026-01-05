@@ -17,10 +17,16 @@ import java.util.List;
 
 public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.ViewHolder> {
 
-    private final List<VaultItem> vaultItems;
+    public interface OnItemDeleteListener {
+        void onItemDelete(int position);
+    }
 
-    public VaultItemAdapter(List<VaultItem> vaultItems) {
+    private final List<VaultItem> vaultItems;
+    private final OnItemDeleteListener deleteListener;
+
+    public VaultItemAdapter(List<VaultItem> vaultItems, OnItemDeleteListener deleteListener) {
         this.vaultItems = vaultItems;
+        this.deleteListener = deleteListener;
     }
 
     @NonNull
@@ -46,6 +52,12 @@ public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.View
             clipboard.setPrimaryClip(clip);
             Toast.makeText(context, "Password copied to clipboard", Toast.LENGTH_SHORT).show();
         });
+
+        holder.deleteButton.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onItemDelete(holder.getAdapterPosition());
+            }
+        });
     }
 
     @Override
@@ -57,12 +69,14 @@ public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.View
         public TextView nameTextView;
         public TextView usernameTextView;
         public Button copyPasswordButton;
+        public Button deleteButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.name_text_view);
             usernameTextView = itemView.findViewById(R.id.username_text_view);
             copyPasswordButton = itemView.findViewById(R.id.copy_password_button);
+            deleteButton = itemView.findViewById(R.id.delete_button);
         }
     }
 }

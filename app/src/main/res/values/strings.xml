@@ -17,4 +17,8 @@
     <string name="password_hint">Password</string>
     <string name="quick_button">Quick</string>
     <string name="save_button">Save</string>
+    <string name="delete_confirmation_title">Delete Entry</string>
+    <string name="delete_confirmation_message">Are you sure you want to delete this entry?</string>
+    <string name="delete_button_label">Delete</string>
+    <string name="cancel_button_label">Cancel</string>
 </resources>

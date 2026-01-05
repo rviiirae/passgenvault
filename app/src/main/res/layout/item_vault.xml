@@ -5,7 +5,8 @@
     android:orientation="horizontal"
     android:padding="12dp"
     android:background="#2C2C3A"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    android:gravity="center_vertical">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -33,11 +34,18 @@
 
     <Button
         android:id="@+id/copy_password_button"
+        style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/copy_button"
-        android:backgroundTint="#8A2BE2"
-        android:textColor="#FFFFFF"
-        android:layout_gravity="center_vertical"/>
+        android:textColor="#FFFFFF"/>
+
+    <Button
+        android:id="@+id/delete_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:textColor="@color/colorAccent" />
 
 </LinearLayout>
