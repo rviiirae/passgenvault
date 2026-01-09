@@ -3,10 +3,12 @@ package com.example.passvaultgenerator;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +47,17 @@ public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.View
         holder.nameTextView.setText(vaultItem.getName());
         holder.usernameTextView.setText(vaultItem.getUsername());
 
+        // Logic to show "Outdated" label and warning icon if > 1 minute old
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - vaultItem.getLastChangedTimestamp() > 60000) {
+            holder.statusTextView.setVisibility(View.VISIBLE);
+            holder.statusTextView.setText("SECURITY RISK: STALE PASSWORD");
+            holder.warningIcon.setVisibility(View.VISIBLE);
+        } else {
+            holder.statusTextView.setVisibility(View.GONE);
+            holder.warningIcon.setVisibility(View.GONE);
+        }
+
         holder.copyPasswordButton.setOnClickListener(v -> {
             Context context = holder.itemView.getContext();
             ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -68,13 +81,17 @@ public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.View
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView nameTextView;
         public TextView usernameTextView;
-        public Button copyPasswordButton;
-        public Button deleteButton;
+        public TextView statusTextView;
+        public ImageView warningIcon;
+        public ImageButton copyPasswordButton;
+        public ImageButton deleteButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.name_text_view);
             usernameTextView = itemView.findViewById(R.id.username_text_view);
+            statusTextView = itemView.findViewById(R.id.status_text_view);
+            warningIcon = itemView.findViewById(R.id.warning_icon);
             copyPasswordButton = itemView.findViewById(R.id.copy_password_button);
             deleteButton = itemView.findViewById(R.id.delete_button);
         }

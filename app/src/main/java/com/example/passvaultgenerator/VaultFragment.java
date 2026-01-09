@@ -2,6 +2,8 @@ package com.example.passvaultgenerator;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +28,8 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
     private PasswordStorage passwordStorage;
     private List<VaultItem> vaultItems;
     private VaultItemAdapter vaultItemAdapter;
+    private final Handler updateHandler = new Handler(Looper.getMainLooper());
+    private Runnable updateRunnable;
 
     @Nullable
     @Override
@@ -60,15 +64,25 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
                 if (item.getName().equalsIgnoreCase(name) && item.getUsername().equalsIgnoreCase(username)) {
                     new AlertDialog.Builder(getContext())
                             .setTitle("Duplicate Warning")
-                            .setMessage("An entry with the same name and username already exists. Are you sure you want to save another?")
+                            .setMessage("Duplicate found. Save anyway?")
                             .setPositiveButton("Save", (dialog, which) -> saveNewItem(name, username, password))
                             .setNegativeButton("Cancel", null)
                             .show();
-                    return; // Stop further execution until user decides
+                    return; 
                 }
             }
             saveNewItem(name, username, password);
         });
+
+        // Setup live update for stale passwords
+        updateRunnable = new Runnable() {
+            @Override
+            public void run() {
+                vaultItemAdapter.notifyDataSetChanged();
+                updateHandler.postDelayed(this, 5000); // Refresh every 10 seconds
+            }
+        };
+        updateHandler.post(updateRunnable);
 
         return view;
     }
@@ -96,5 +110,11 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
                 })
                 .setNegativeButton(R.string.cancel_button_label, null)
                 .show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        updateHandler.removeCallbacks(updateRunnable);
     }
 }

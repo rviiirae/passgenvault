@@ -14,14 +14,18 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        if (position == 1) {
-            return new VaultFragment();
+        switch (position) {
+            case 1:
+                return new VaultFragment();
+            case 2:
+                return new SettingsFragment();
+            default:
+                return new GeneratorFragment();
         }
-        return new GeneratorFragment();
     }
 
     @Override
     public int getItemCount() {
-        return 2;
+        return 3;
     }
 }

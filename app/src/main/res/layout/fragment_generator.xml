@@ -1,108 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#1E1E2C">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/generator_title"
-        android:textColor="@android:color/white"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/length_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/length_default"
-        android:textColor="@android:color/white" />
-
-    <SeekBar
-        android:id="@+id/length_seek_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="32"
-        android:progress="14" />
+    android:padding="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <CheckBox
-            android:id="@+id/lower_case_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/lower_case_label"
-            android:textColor="@android:color/white" />
-
-        <CheckBox
-            android:id="@+id/upper_case_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/upper_case_label"
-            android:textColor="@android:color/white" />
-
-        <CheckBox
-            android:id="@+id/numbers_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/numbers_label"
-            android:textColor="@android:color/white" />
-
-        <CheckBox
-            android:id="@+id/symbols_check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/symbols_label"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/generated_password_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="#2C2C3A"
-        android:padding="12dp"
-        android:text="@string/generated_password_default"
-        android:textColor="@android:color/white"
-        android:textSize="18sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:orientation="horizontal"
-        style="?android:attr/buttonBarStyle">
+        android:gravity="center_vertical"
+        android:layout_marginBottom="32dp">
 
-        <Button
-            android:id="@+id/generate_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="#8A2BE2"
-            android:text="@string/generate_button"
-            android:textColor="@android:color/white"
-            style="?android:attr/buttonBarButtonStyle" />
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_logo"
+            android:layout_marginEnd="16dp"/>
 
-        <Button
-            android:id="@+id/copy_button"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:backgroundTint="#8A2BE2"
-            android:text="@string/copy_button"
-            android:textColor="@android:color/white"
-            style="?android:attr/buttonBarButtonStyle" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PassVault"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/generator_title"
+                android:textColor="#8A2BE2"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"/>
+        </LinearLayout>
     </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#2C2C3A"
+        android:layout_marginBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/length_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/length_default"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <SeekBar
+                android:id="@+id/length_seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:max="32"
+                android:progress="14"
+                android:progressTint="#8A2BE2"
+                android:thumbTint="#FFFFFF"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="24dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lowercase"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_centerVertical="true"/>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/lower_case_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:checked="true"
+                        app:thumbTint="#FFFFFF"
+                        app:trackTint="#8A2BE2" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Uppercase"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_centerVertical="true"/>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/upper_case_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:checked="true"
+                        app:thumbTint="#FFFFFF"
+                        app:trackTint="#8A2BE2" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Numbers"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_centerVertical="true"/>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/numbers_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:checked="true"
+                        app:thumbTint="#FFFFFF"
+                        app:trackTint="#8A2BE2" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Symbols"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:layout_centerVertical="true"/>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/symbols_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        app:thumbTint="#FFFFFF"
+                        app:trackTint="#8A2BE2" />
+                </RelativeLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#3A3A4D">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/generated_password_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="16dp"
+                android:text="@string/generated_password_default"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:fontFamily="monospace" />
+
+            <ImageButton
+                android:id="@+id/copy_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_copy"
+                app:tint="#8A2BE2"
+                android:contentDescription="Copy" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/generate_button"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_button"
+        android:text="@string/generate_button"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null" />
 
 </LinearLayout>
