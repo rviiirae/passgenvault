@@ -1,6 +1,7 @@
 # PassgenVault
+Made By Keith Raven Montenegro (BSIT 3 - 4)
 
-**PassgenVault** is a simple and secure password generator and vault application built with Java/Kotlin (Android). It helps you create strong, random passwords and optionally store them securely for later use.
+**PassgenVault** is a simple and secure password generator and vault application built with Java (Android). It helps you create strong, random passwords and optionally store them securely for later use.
 
 > ⚙️ Project Type: Android app  
 > 🛠️ Built with: Java / Android SDK, Gradle  
@@ -17,4 +18,4 @@
 
 
 
-Made By Keith Raven Montenegro (BSIT 3 - 4)
+
