@@ -3,12 +3,12 @@ package com.example.passvaultgenerator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,11 +16,19 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Locale;
+
 public class PinActivity extends AppCompatActivity {
 
     private static final String PIN_KEY = "app_pin";
+    private static final String FAILED_ATTEMPTS_KEY = "failed_attempts";
+    private static final String LOCKOUT_END_TIME_KEY = "lockout_end_time";
+    
     private SharedPreferences sharedPreferences;
     private final EditText[] pinDigits = new EditText[6];
+    private TextView titleTextView;
+    private Button submitButton;
+    private CountDownTimer lockoutTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +37,8 @@ public class PinActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("pin_prefs", MODE_PRIVATE);
 
-        TextView titleTextView = findViewById(R.id.pin_title_textview);
-        Button submitButton = findViewById(R.id.pin_submit_button);
+        titleTextView = findViewById(R.id.pin_title_textview);
+        submitButton = findViewById(R.id.pin_submit_button);
 
         pinDigits[0] = findViewById(R.id.pin_digit_1);
         pinDigits[1] = findViewById(R.id.pin_digit_2);
@@ -50,6 +58,8 @@ public class PinActivity extends AppCompatActivity {
             submitButton.setText("Set PIN");
         }
 
+        checkLockout();
+
         submitButton.setOnClickListener(v -> {
             String enteredPin = getEnteredPin();
             if (enteredPin.length() < 6) {
@@ -60,11 +70,12 @@ public class PinActivity extends AppCompatActivity {
             if (isPinSet()) {
                 String savedPin = sharedPreferences.getString(PIN_KEY, "");
                 if (enteredPin.equals(savedPin)) {
+                    // Success: Reset failed attempts
+                    sharedPreferences.edit().putInt(FAILED_ATTEMPTS_KEY, 0).apply();
                     startActivity(new Intent(this, MainActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show();
-                    clearPin();
+                    handleFailedAttempt();
                 }
             } else {
                 sharedPreferences.edit().putString(PIN_KEY, enteredPin).apply();
@@ -73,6 +84,65 @@ public class PinActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void handleFailedAttempt() {
+        int failedAttempts = sharedPreferences.getInt(FAILED_ATTEMPTS_KEY, 0) + 1;
+        sharedPreferences.edit().putInt(FAILED_ATTEMPTS_KEY, failedAttempts).apply();
+
+        if (failedAttempts >= 3) {
+            long lockoutMillis;
+            if (failedAttempts == 3) {
+                lockoutMillis = 60000; // 1 minute
+            } else {
+                // (failedAttempts - 3) * 3 minutes + 1 minute initial
+                lockoutMillis = 60000 + (long) (failedAttempts - 3) * 3 * 60000;
+            }
+            
+            long endTime = System.currentTimeMillis() + lockoutMillis;
+            sharedPreferences.edit().putLong(LOCKOUT_END_TIME_KEY, endTime).apply();
+            startLockoutTimer(lockoutMillis);
+        } else {
+            Toast.makeText(this, "Incorrect PIN. " + (3 - failedAttempts) + " attempts left.", Toast.LENGTH_SHORT).show();
+            clearPin();
+        }
+    }
+
+    private void checkLockout() {
+        long endTime = sharedPreferences.getLong(LOCKOUT_END_TIME_KEY, 0);
+        long currentTime = System.currentTimeMillis();
+        
+        if (currentTime < endTime) {
+            startLockoutTimer(endTime - currentTime);
+        }
+    }
+
+    private void startLockoutTimer(long millisInFuture) {
+        setEnabledUI(false);
+        if (lockoutTimer != null) lockoutTimer.cancel();
+
+        lockoutTimer = new CountDownTimer(millisInFuture, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long minutes = (millisUntilFinished / 1000) / 60;
+                long seconds = (millisUntilFinished / 1000) % 60;
+                titleTextView.setText(String.format(Locale.getDefault(), "Try again in %02d:%02d", minutes, seconds));
+            }
+
+            @Override
+            public void onFinish() {
+                titleTextView.setText("Enter PIN to Unlock");
+                setEnabledUI(true);
+                clearPin();
+            }
+        }.start();
+    }
+
+    private void setEnabledUI(boolean enabled) {
+        submitButton.setEnabled(enabled);
+        for (EditText et : pinDigits) {
+            et.setEnabled(enabled);
+        }
     }
 
     private void setupTextWatchers() {
@@ -85,7 +155,6 @@ public class PinActivity extends AppCompatActivity {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s.length() == 1) {
-                        // Force transformation refresh instantly
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             if (index < 5) {
                                 pinDigits[index + 1].requestFocus();
@@ -133,5 +202,11 @@ public class PinActivity extends AppCompatActivity {
 
     private boolean isPinSet() {
         return sharedPreferences.contains(PIN_KEY);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (lockoutTimer != null) lockoutTimer.cancel();
     }
 }

@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
-                if (currentTime - lastChangeTime > 60000) { // 1 minute
+                if (currentTime - lastChangeTime > 10000) { // 1 minute
                     sendSecurityNotification();
                     lastChangeTime = currentTime; 
                 }

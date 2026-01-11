@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -53,19 +56,40 @@ public class SettingsFragment extends Fragment {
                     .show();
         });
 
-        clearVaultButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Danger Zone")
-                    .setMessage("This will permanently delete all saved passwords. Are you sure?")
-                    .setPositiveButton("Clear All", (dialog, which) -> {
-                        PasswordStorage storage = new PasswordStorage(getContext());
-                        storage.saveVaultItems(new ArrayList<>());
-                        Toast.makeText(getContext(), "Vault cleared", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+        clearVaultButton.setOnClickListener(v -> showPinConfirmationDialog());
 
         return view;
+    }
+
+    private void showPinConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Verify PIN");
+        builder.setMessage("Please enter your 6-digit PIN to confirm clearing the vault.");
+
+        final EditText input = new EditText(getContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirm", (dialog, which) -> {
+            String enteredPin = input.getText().toString();
+            SharedPreferences pinPrefs = getActivity().getSharedPreferences("pin_prefs", Context.MODE_PRIVATE);
+            String savedPin = pinPrefs.getString("app_pin", "");
+
+            if (enteredPin.equals(savedPin)) {
+                PasswordStorage storage = new PasswordStorage(getContext());
+                storage.saveVaultItems(new ArrayList<>());
+                Toast.makeText(getContext(), "Vault cleared successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Incorrect PIN. Vault not cleared.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
     }
 }

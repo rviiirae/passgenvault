@@ -8,13 +8,29 @@
     android:padding="24dp"
     android:background="#1E1E2C">
 
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_logo"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PassVault"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-black"
+        android:layout_marginBottom="8dp"/>
+
     <TextView
         android:id="@+id/pin_title_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enter PIN"
-        android:textColor="@android:color/white"
-        android:textSize="28sp"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="32dp"/>
 
