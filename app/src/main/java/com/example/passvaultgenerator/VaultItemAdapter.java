@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.ViewHolder> {
@@ -23,12 +24,36 @@ public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.View
         void onItemDelete(int position);
     }
 
-    private final List<VaultItem> vaultItems;
+    private List<VaultItem> vaultItems;
+    private List<VaultItem> fullList;
     private final OnItemDeleteListener deleteListener;
 
     public VaultItemAdapter(List<VaultItem> vaultItems, OnItemDeleteListener deleteListener) {
         this.vaultItems = vaultItems;
+        this.fullList = new ArrayList<>(vaultItems);
         this.deleteListener = deleteListener;
+    }
+
+    public void updateList(List<VaultItem> newList) {
+        this.vaultItems = newList;
+        this.fullList = new ArrayList<>(newList);
+        notifyDataSetChanged();
+    }
+
+    public void filter(String query) {
+        List<VaultItem> filteredList = new ArrayList<>();
+        if (query.isEmpty()) {
+            filteredList.addAll(fullList);
+        } else {
+            for (VaultItem item : fullList) {
+                if (item.getName().toLowerCase().contains(query.toLowerCase()) ||
+                    item.getUsername().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(item);
+                }
+            }
+        }
+        this.vaultItems = filteredList;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -47,7 +72,6 @@ public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.View
         holder.nameTextView.setText(vaultItem.getName());
         holder.usernameTextView.setText(vaultItem.getUsername());
 
-        // Logic to show "Outdated" label and warning icon if > 1 minute old
         long currentTime = System.currentTimeMillis();
         if (currentTime - vaultItem.getLastChangedTimestamp() > 60000) {
             holder.statusTextView.setVisibility(View.VISIBLE);
@@ -68,7 +92,9 @@ public class VaultItemAdapter extends RecyclerView.Adapter<VaultItemAdapter.View
 
         holder.deleteButton.setOnClickListener(v -> {
             if (deleteListener != null) {
-                deleteListener.onItemDelete(holder.getAdapterPosition());
+                // Find original position in the full list if filtered
+                int originalPos = fullList.indexOf(vaultItem);
+                deleteListener.onItemDelete(originalPos);
             }
         });
     }

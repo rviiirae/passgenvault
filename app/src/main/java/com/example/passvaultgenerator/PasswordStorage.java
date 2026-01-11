@@ -25,31 +25,31 @@ public class PasswordStorage {
 
     public PasswordStorage(@NonNull Context context) {
         try {
-            // 1. Create the MasterKey
             MasterKey masterKey = new MasterKey.Builder(context)
                     .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                     .build();
 
-            // 2. Create the EncryptedSharedPreferences using the MasterKey object
             sharedPreferences = EncryptedSharedPreferences.create(
                     context,
                     "secret_shared_prefs",
-                    masterKey, // Use the MasterKey object here
+                    masterKey,
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
         } catch (GeneralSecurityException | IOException e) {
             Log.e(TAG, "Error creating EncryptedSharedPreferences", e);
-            // Handle the error appropriately in a real app, maybe by disabling vault features
         }
     }
 
     public void saveVaultItems(List<VaultItem> vaultItems) {
         if (sharedPreferences == null) return;
         String json = gson.toJson(vaultItems);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("vault_items", json);
-        editor.apply();
+        sharedPreferences.edit().putString("vault_items", json).apply();
+    }
+
+    public void importVaultJson(String json) {
+        if (sharedPreferences == null) return;
+        sharedPreferences.edit().putString("vault_items", json).apply();
     }
 
     @NonNull

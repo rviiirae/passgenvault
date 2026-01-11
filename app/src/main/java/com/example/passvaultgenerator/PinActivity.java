@@ -9,20 +9,26 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 
 import java.util.Locale;
+import java.util.concurrent.Executor;
 
 public class PinActivity extends AppCompatActivity {
 
     private static final String PIN_KEY = "app_pin";
     private static final String FAILED_ATTEMPTS_KEY = "failed_attempts";
     private static final String LOCKOUT_END_TIME_KEY = "lockout_end_time";
+    private static final String KEY_BIOMETRIC = "biometric_enabled";
     
     private SharedPreferences sharedPreferences;
     private final EditText[] pinDigits = new EditText[6];
@@ -33,6 +39,8 @@ public class PinActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Privacy: Prevent Screenshots & App Switcher Preview
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_pin);
 
         sharedPreferences = getSharedPreferences("pin_prefs", MODE_PRIVATE);
@@ -53,6 +61,12 @@ public class PinActivity extends AppCompatActivity {
         if (isPinSet()) {
             titleTextView.setText("Enter PIN to Unlock");
             submitButton.setText("Unlock");
+            
+            // Biometric Fallback (if enabled in settings)
+            SharedPreferences settingsPrefs = getSharedPreferences("app_settings", MODE_PRIVATE);
+            if (settingsPrefs.getBoolean(KEY_BIOMETRIC, false)) {
+                showBiometricPrompt();
+            }
         } else {
             titleTextView.setText("Set a 6-Digit PIN");
             submitButton.setText("Set PIN");
@@ -70,20 +84,42 @@ public class PinActivity extends AppCompatActivity {
             if (isPinSet()) {
                 String savedPin = sharedPreferences.getString(PIN_KEY, "");
                 if (enteredPin.equals(savedPin)) {
-                    // Success: Reset failed attempts
-                    sharedPreferences.edit().putInt(FAILED_ATTEMPTS_KEY, 0).apply();
-                    startActivity(new Intent(this, MainActivity.class));
-                    finish();
+                    onUnlockSuccess();
                 } else {
                     handleFailedAttempt();
                 }
             } else {
                 sharedPreferences.edit().putString(PIN_KEY, enteredPin).apply();
                 Toast.makeText(this, "PIN Set Successfully", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, MainActivity.class));
-                finish();
+                onUnlockSuccess();
             }
         });
+    }
+
+    private void onUnlockSuccess() {
+        sharedPreferences.edit().putInt(FAILED_ATTEMPTS_KEY, 0).apply();
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
+
+    private void showBiometricPrompt() {
+        Executor executor = ContextCompat.getMainExecutor(this);
+        BiometricPrompt biometricPrompt = new BiometricPrompt(PinActivity.this,
+                executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                onUnlockSuccess();
+            }
+        });
+
+        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric Unlock")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Use PIN")
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
     }
 
     private void handleFailedAttempt() {
@@ -91,14 +127,7 @@ public class PinActivity extends AppCompatActivity {
         sharedPreferences.edit().putInt(FAILED_ATTEMPTS_KEY, failedAttempts).apply();
 
         if (failedAttempts >= 3) {
-            long lockoutMillis;
-            if (failedAttempts == 3) {
-                lockoutMillis = 60000; // 1 minute
-            } else {
-                // (failedAttempts - 3) * 3 minutes + 1 minute initial
-                lockoutMillis = 60000 + (long) (failedAttempts - 3) * 3 * 60000;
-            }
-            
+            long lockoutMillis = (failedAttempts == 3) ? 60000 : 60000 + (long) (failedAttempts - 3) * 3 * 60000;
             long endTime = System.currentTimeMillis() + lockoutMillis;
             sharedPreferences.edit().putLong(LOCKOUT_END_TIME_KEY, endTime).apply();
             startLockoutTimer(lockoutMillis);
@@ -111,7 +140,6 @@ public class PinActivity extends AppCompatActivity {
     private void checkLockout() {
         long endTime = sharedPreferences.getLong(LOCKOUT_END_TIME_KEY, 0);
         long currentTime = System.currentTimeMillis();
-        
         if (currentTime < endTime) {
             startLockoutTimer(endTime - currentTime);
         }
@@ -120,7 +148,6 @@ public class PinActivity extends AppCompatActivity {
     private void startLockoutTimer(long millisInFuture) {
         setEnabledUI(false);
         if (lockoutTimer != null) lockoutTimer.cancel();
-
         lockoutTimer = new CountDownTimer(millisInFuture, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -128,7 +155,6 @@ public class PinActivity extends AppCompatActivity {
                 long seconds = (millisUntilFinished / 1000) % 60;
                 titleTextView.setText(String.format(Locale.getDefault(), "Try again in %02d:%02d", minutes, seconds));
             }
-
             @Override
             public void onFinish() {
                 titleTextView.setText("Enter PIN to Unlock");
@@ -140,9 +166,7 @@ public class PinActivity extends AppCompatActivity {
 
     private void setEnabledUI(boolean enabled) {
         submitButton.setEnabled(enabled);
-        for (EditText et : pinDigits) {
-            et.setEnabled(enabled);
-        }
+        for (EditText et : pinDigits) et.setEnabled(enabled);
     }
 
     private void setupTextWatchers() {
@@ -151,18 +175,14 @@ public class PinActivity extends AppCompatActivity {
             pinDigits[i].addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s.length() == 1) {
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            if (index < 5) {
-                                pinDigits[index + 1].requestFocus();
-                            }
+                            if (index < 5) pinDigits[index + 1].requestFocus();
                         }, 10);
                     }
                 }
-
                 @Override
                 public void afterTextChanged(Editable s) {}
             });
@@ -187,16 +207,12 @@ public class PinActivity extends AppCompatActivity {
 
     private String getEnteredPin() {
         StringBuilder pin = new StringBuilder();
-        for (EditText et : pinDigits) {
-            pin.append(et.getText().toString());
-        }
+        for (EditText et : pinDigits) pin.append(et.getText().toString());
         return pin.toString();
     }
 
     private void clearPin() {
-        for (EditText et : pinDigits) {
-            et.setText("");
-        }
+        for (EditText et : pinDigits) et.setText("");
         pinDigits[0].requestFocus();
     }
 

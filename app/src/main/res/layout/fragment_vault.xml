@@ -15,7 +15,21 @@
         android:textSize="32sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-black"
-        android:layout_marginBottom="32dp"/>
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/search_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search accounts..."
+        android:textColorHint="#B0B0B0"
+        android:textColor="#FFFFFF"
+        android:background="#3A3A4D"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:inputType="text"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/vault_input_card"
@@ -24,7 +38,7 @@
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="#2C2C3A"
-        android:layout_marginBottom="32dp">
+        android:layout_marginBottom="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,7 +105,7 @@
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="12dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/vault_recycler_view"

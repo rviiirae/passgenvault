@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
     private EditText nameEditText;
     private EditText usernameEditText;
     private EditText passwordEditText;
+    private EditText searchEditText;
 
     private PasswordStorage passwordStorage;
     private List<VaultItem> vaultItems;
@@ -42,6 +45,7 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
         nameEditText = view.findViewById(R.id.name_edit_text);
         usernameEditText = view.findViewById(R.id.username_edit_text);
         passwordEditText = view.findViewById(R.id.password_edit_text);
+        searchEditText = view.findViewById(R.id.search_edit_text);
         RecyclerView vaultRecyclerView = view.findViewById(R.id.vault_recycler_view);
         Button saveButton = view.findViewById(R.id.save_button);
 
@@ -59,12 +63,11 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
                 return;
             }
 
-            // Check for duplicates before saving
             for (VaultItem item : vaultItems) {
                 if (item.getName().equalsIgnoreCase(name) && item.getUsername().equalsIgnoreCase(username)) {
                     new AlertDialog.Builder(getContext())
                             .setTitle("Duplicate Warning")
-                            .setMessage("Duplicate found. Save anyway?")
+                            .setMessage("An entry with the same name and username already exists. Are you sure you want to save another?")
                             .setPositiveButton("Save", (dialog, which) -> saveNewItem(name, username, password))
                             .setNegativeButton("Cancel", null)
                             .show();
@@ -74,12 +77,22 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
             saveNewItem(name, username, password);
         });
 
-        // Setup live update for stale passwords
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                vaultItemAdapter.filter(s.toString());
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         updateRunnable = new Runnable() {
             @Override
             public void run() {
                 vaultItemAdapter.notifyDataSetChanged();
-                updateHandler.postDelayed(this, 5000); // Refresh every 10 seconds
+                updateHandler.postDelayed(this, 10000);
             }
         };
         updateHandler.post(updateRunnable);
@@ -90,12 +103,13 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
     private void saveNewItem(String name, String username, String password) {
         VaultItem newItem = new VaultItem(name, username, password);
         vaultItems.add(newItem);
-        vaultItemAdapter.notifyItemInserted(vaultItems.size() - 1);
+        vaultItemAdapter.updateList(vaultItems);
         passwordStorage.saveVaultItems(vaultItems);
 
         nameEditText.setText("");
         usernameEditText.setText("");
         passwordEditText.setText("");
+        searchEditText.setText(""); // Clear search on save
     }
 
     @Override
@@ -105,7 +119,7 @@ public class VaultFragment extends Fragment implements VaultItemAdapter.OnItemDe
                 .setMessage(R.string.delete_confirmation_message)
                 .setPositiveButton(R.string.delete_button_label, (dialog, which) -> {
                     vaultItems.remove(position);
-                    vaultItemAdapter.notifyItemRemoved(position);
+                    vaultItemAdapter.updateList(vaultItems);
                     passwordStorage.saveVaultItems(vaultItems);
                 })
                 .setNegativeButton(R.string.cancel_button_label, null)

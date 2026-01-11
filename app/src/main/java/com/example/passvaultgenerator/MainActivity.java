@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Privacy: Prevent Screenshots & App Switcher Preview
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_main);
 
         applyOledThemeIfNeeded();
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
-                if (currentTime - lastChangeTime > 10000) { // 1 minute
+                if (currentTime - lastChangeTime > 60000) { // 1 minute
                     sendSecurityNotification();
                     lastChangeTime = currentTime; 
                 }
